@@ -1,120 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <title>Campus Lost & Found System</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Campus Lost & Found</title>
 </head>
 
 <body class="bg-gray-50 text-gray-800">
 
-<!-- Navbar -->
-<header class="flex justify-between items-center px-8 py-4 bg-white shadow-md sticky top-0">
+<!-- NAVBAR -->
+<header class="flex justify-between items-center px-8 py-5 bg-white shadow-sm sticky top-0 z-50">
 
-    <div class="text-xl font-bold text-blue-600">
-        Campus L&F
-    </div>
+  <div class="font-bold text-xl text-blue-600">
+    Campus L&F
+  </div>
 
-        <nav>
-        <ul class="flex gap-6 text-gray-600">
-            <li><a href="#" class="hover:text-blue-500">Home</a></li>
-            <li><a href="#about" class="hover:text-blue-500">About</a></li>
-            <li><a href="#how" class="hover:text-blue-500">How it works</a></li>
-            <li><a href="#contact" class="hover:text-blue-500">Contact</a></li>
-        </ul>
-    </nav>
+  <nav class="hidden md:flex gap-8 text-sm text-gray-600">
+    <a href="#features" class="hover:text-blue-600">Features</a>
+    <a href="#how" class="hover:text-blue-600">How it works</a>
+    <a href="#about" class="hover:text-blue-600">About</a>
+  </nav>
 
-    <div class="flex gap-3">
-        <a href="auth/login.php" class="px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50">
-            Login
-        </a>
-        <a href="auth/register.php" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            Sign Up
-        </a>
-    </div>
+  <div class="flex gap-3">
+    <a href="auth/login.php" class="px-4 py-2 text-sm border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50">
+      Login
+    </a>
+    <a href="auth/register.php" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+      Get Started
+    </a>
+  </div>
 
 </header>
 
-<!-- Hero Section -->
-<main class="text-center py-20 px-6">
+<!-- HERO SECTION -->
+<section class="px-6 md:px-20 py-20 flex flex-col md:flex-row items-center gap-12">
 
-    <h1 class="text-4xl md:text-5xl font-bold mb-4">
-        Lost Something on Campus?
+  <!-- Left -->
+  <div class="flex-1">
+
+    <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+      Find Lost Items on Campus — <span class="text-blue-600">Fast & Secure</span>
     </h1>
 
-    <p class="text-gray-600 max-w-2xl mx-auto mb-8">
-        A simple and secure platform where students can report lost items, find missing belongings,
-        and verify ownership through a smart claim system.
+    <p class="mt-6 text-gray-600 text-lg">
+      A trusted system where students report lost items, discover found items,
+      and verify ownership through a secure claim process.
     </p>
 
-    <div class="flex justify-center gap-4">
-        <a href="items/list.php" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Browse Items
-        </a>
+    <div class="mt-8 flex gap-4">
+      <a href="items/list.php" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        Browse Items
+      </a>
 
-        <a href="items/create.php" class="px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50">
-            Report Item
-        </a>
+      <a href="items/create.php" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-white">
+        Report Item
+      </a>
     </div>
 
-</main>
-
-<!-- About Section -->
-<section id="about" class="bg-white py-16 px-8 text-center">
-
-    <h2 class="text-3xl font-bold mb-6">About the System</h2>
-
-    <p class="max-w-3xl mx-auto text-gray-600">
-        This platform helps students recover lost items and return found belongings in a structured way.
-        Every claim is verified using security questions to ensure only the rightful owner can retrieve items.
+    <p class="mt-6 text-sm text-gray-500">
+      No spam. No confusion. Just real recovery.
     </p>
+
+  </div>
+
+  <!-- Right -->
+  <div class="flex-1">
+    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-10 text-white shadow-lg">
+      <h2 class="text-2xl font-bold">How it works</h2>
+
+      <div class="mt-6 space-y-4 text-sm">
+
+        <div class="bg-white/10 p-3 rounded-lg">
+          1. Report lost or found item
+        </div>
+
+        <div class="bg-white/10 p-3 rounded-lg">
+          2. Submit claim with verification answer
+        </div>
+
+        <div class="bg-white/10 p-3 rounded-lg">
+          3. Admin approves or rejects claim
+        </div>
+
+      </div>
+    </div>
+  </div>
 
 </section>
 
-<!-- How it works -->
-<section id="how" class="py-16 px-8 bg-gray-50">
+<!-- FEATURES -->
+<section id="features" class="px-6 md:px-20 py-20 bg-white">
 
-    <h2 class="text-3xl font-bold text-center mb-10">How It Works</h2>
+  <h2 class="text-3xl font-bold text-center mb-12">Key Features</h2>
 
-    <div class="grid md:grid-cols-3 gap-8 text-center">
+  <div class="grid md:grid-cols-3 gap-8">
 
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="font-bold mb-2">1. Report Item</h3>
-            <p class="text-gray-600">Users submit details of lost or found items.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="font-bold mb-2">2. Claim Item</h3>
-            <p class="text-gray-600">Users submit a claim with a security verification answer.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="font-bold mb-2">3. Admin Approval</h3>
-            <p class="text-gray-600">Admin verifies and approves or rejects claims.</p>
-        </div>
-
+    <div class="p-6 bg-gray-50 rounded-xl">
+      <h3 class="font-bold text-lg text-blue-600">Secure Claims</h3>
+      <p class="text-gray-600 mt-2 text-sm">
+        Only rightful owners can retrieve items using verification questions.
+      </p>
     </div>
 
+    <div class="p-6 bg-gray-50 rounded-xl">
+      <h3 class="font-bold text-lg text-blue-600">Easy Reporting</h3>
+      <p class="text-gray-600 mt-2 text-sm">
+        Quickly post lost or found items with full details and images.
+      </p>
+    </div>
+
+    <div class="p-6 bg-gray-50 rounded-xl">
+      <h3 class="font-bold text-lg text-blue-600">Admin Control</h3>
+      <p class="text-gray-600 mt-2 text-sm">
+        Admins manage all claims and ensure proper verification.
+      </p>
+    </div>
+
+  </div>
+
 </section>
 
-<!-- Contact -->
-<section id="contact" class="py-16 px-8 bg-white text-center">
+<!-- HOW IT WORKS -->
+<section id="how" class="px-6 md:px-20 py-20 bg-gray-50">
 
-    <h2 class="text-3xl font-bold mb-6">Contact</h2>
+  <h2 class="text-3xl font-bold text-center mb-12">How It Works</h2>
 
-    <p class="text-gray-600 mb-4">
-        Need help or found a bug? Reach out to the admin team.
-    </p>
+  <div class="grid md:grid-cols-3 gap-6 text-center">
 
-    <p class="text-blue-600">support@campuslf.com</p>
+    <div class="bg-white p-6 rounded-xl shadow-sm">
+      <h3 class="font-bold">Step 1</h3>
+      <p class="text-gray-600 mt-2 text-sm">User reports lost or found item</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm">
+      <h3 class="font-bold">Step 2</h3>
+      <p class="text-gray-600 mt-2 text-sm">Another user submits claim with answer</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm">
+      <h3 class="font-bold">Step 3</h3>
+      <p class="text-gray-600 mt-2 text-sm">Admin verifies and approves request</p>
+    </div>
+
+  </div>
 
 </section>
 
-<!-- Footer -->
-<footer class="bg-gray-900 text-white text-center py-6 mt-10">
+<!-- ABOUT -->
+<section id="about" class="px-6 md:px-20 py-20 bg-white text-center">
 
-    <p>&copy; 2026 Campus Lost & Found System. All rights reserved.</p>
+  <h2 class="text-3xl font-bold">About the System</h2>
+
+  <p class="mt-6 text-gray-600 max-w-3xl mx-auto">
+    Campus Lost & Found is designed to reduce loss of personal items in school environments
+    by providing a structured reporting and verification system that ensures transparency and trust.
+  </p>
+
+</section>
+
+<!-- CTA -->
+<section class="px-6 md:px-20 py-20 bg-blue-600 text-white text-center rounded-none">
+
+  <h2 class="text-3xl font-bold">Ready to recover your lost items?</h2>
+
+  <p class="mt-4 text-blue-100">
+    Start using the system today — report, search, and claim securely.
+  </p>
+
+  <div class="mt-8 flex justify-center gap-4">
+    <a href="auth/register.php" class="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium">
+      Get Started
+    </a>
+
+    <a href="auth/login.php" class="px-6 py-3 border border-white rounded-lg">
+      Login
+    </a>
+  </div>
+
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-gray-300 text-center py-6">
+
+  <p class="text-sm">
+    © 2026 Campus Lost & Found System. Built for students.
+  </p>
 
 </footer>
 
