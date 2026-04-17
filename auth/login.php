@@ -9,6 +9,12 @@
 
 <body class="min-h-screen flex">
 
+<?php 
+  $email = $password = ""
+  $emailErr = $passwordErr = ""
+
+?>
+
   <!-- Left Visual Side -->
   <div class="hidden md:flex w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-12 flex-col justify-between">
     
@@ -47,6 +53,7 @@
               type="email"
               placeholder="you@example.com"
               class="w-full mt-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 
@@ -57,16 +64,12 @@
               type="password"
               placeholder="••••••••"
               class="w-full mt-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 
           <!-- Options -->
-          <div class="flex items-center justify-between text-sm">
-            <label class="flex items-center gap-2 text-gray-600">
-              <input type="checkbox" />
-              Remember me
-            </label>
-
+          <div class="flex items-center justify-between text-sm">           
             <a href="#" class="text-blue-600 hover:underline">
               Forgot password?
             </a>

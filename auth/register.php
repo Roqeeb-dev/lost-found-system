@@ -9,6 +9,37 @@
 
 <body class="min-h-screen flex">
 
+<?php
+$name = $email = $password = "";
+$nameError = $emailError = $passwordError = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+  if (empty($_POST["name"])) {
+    $nameError = "Name is required";
+  } else {
+    $name = htmlspecialchars($_POST["name"]);
+  }
+
+  if (empty($_POST["email"]) || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
+    $emailError = "Valid email required";
+  } else {
+    $email = htmlspecialchars($_POST["email"]);
+  }
+
+  if (strlen($_POST["password"]) < 6) {
+    $passwordError = "Minimum 6 characters";
+  } else {
+    $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+  }
+
+  if (!$nameError && !$emailError && !$passwordError) {
+    // Simulate saving
+    echo "<script>alert('Account created successfully');</script>";
+  }
+}
+?>
+
   <!-- Left Side -->
   <div class="hidden md:flex w-1/2 bg-gradient-to-br from-indigo-700 to-purple-700 text-white p-12 flex-col justify-between">
     
@@ -37,15 +68,18 @@
           It only takes a minute
         </p>
 
-        <form class="mt-6 space-y-5">
+        <form method="POST" action="register.php" class="mt-6 space-y-5">
 
           <!-- Name -->
           <div>
             <label class="text-sm text-gray-600">Full Name</label>
             <input
               type="text"
+              name="name"
               placeholder="John Doe"
               class="w-full mt-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              autocomplete="name"
+              required
             />
           </div>
 
@@ -54,8 +88,11 @@
             <label class="text-sm text-gray-600">Email</label>
             <input
               type="email"
+              name="email"
               placeholder="you@example.com"
               class="w-full mt-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              autocomplete="email"
+              required
             />
           </div>
 
@@ -64,8 +101,11 @@
             <label class="text-sm text-gray-600">Password</label>
             <input
               type="password"
+              name="password"
               placeholder="••••••••"
               class="w-full mt-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              autocomplete="new-password"
+              required
             />
           </div>
 
