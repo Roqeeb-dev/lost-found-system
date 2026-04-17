@@ -39,14 +39,14 @@ The system also includes basic verification and admin control to ensure secure a
 
 ## 📂 Project Structure
 
-/auth → Authentication (login & register)
-/admin → Admin dashboard and controls
-/items → Item-related features
-/claims → Claim handling
-/config → Database configuration
-/uploads → Stored images/files
-
----
+```
+/auth       → Authentication (login & register)
+/admin      → Admin dashboard and controls
+/items      → Item-related features
+/claims     → Claim handling
+/config     → Database configuration
+/uploads    → Stored images/files
+```
 
 ## ⚙️ Setup Instructions
 
