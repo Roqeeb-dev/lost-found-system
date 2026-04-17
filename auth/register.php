@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $email = trim($_POST["email"]);
   $passwordRaw = $_POST["password"];
 
-  // Basic backend validation (still needed even with required)
+  // Basic backend validation 
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $error = "Invalid email format";
   } elseif (strlen($passwordRaw) < 6) {
@@ -89,6 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           name="name"
           value="<?php echo htmlspecialchars($name); ?>"
           class="w-full mt-1 px-4 py-3 rounded-xl border border-zinc-200 focus:ring-2 focus:ring-indigo-500"
+          autocomplete="name"
           required
         />
       </div>
@@ -101,6 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           name="email"
           value="<?php echo htmlspecialchars($email); ?>"
           class="w-full mt-1 px-4 py-3 rounded-xl border border-zinc-200 focus:ring-2 focus:ring-indigo-500"
+          autocomplete="email"
           required
         />
       </div>
@@ -112,6 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           type="password"
           name="password"
           class="w-full mt-1 px-4 py-3 rounded-xl border border-zinc-200 focus:ring-2 focus:ring-indigo-500"
+          autocomplete="new-password"
           required
         />
       </div>

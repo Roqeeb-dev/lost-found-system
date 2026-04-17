@@ -83,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           name="email"
           value="<?php echo htmlspecialchars($email); ?>"
           class="w-full mt-1 px-4 py-3 rounded-xl border border-zinc-200 focus:ring-2 focus:ring-blue-500"
+          autocomplete="email"
           required
         />
       </div>
@@ -94,6 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           type="password"
           name="password"
           class="w-full mt-1 px-4 py-3 rounded-xl border border-zinc-200 focus:ring-2 focus:ring-blue-500"
+          autocomplete="current-password"
           required
         />
       </div>
