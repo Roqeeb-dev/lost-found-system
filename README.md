@@ -51,7 +51,7 @@ The system also includes basic verification and admin control to ensure secure a
 ## ⚙️ Setup Instructions
 
 1. Clone the repository:
-   git clone https://github.com/your-username/campus-lost-found.git
+   git clone https://github.com/Roqeeb-dev/lost-found-system.git
 
 2. Move the project to your server directory (e.g. htdocs for XAMPP)
 
@@ -66,7 +66,7 @@ The system also includes basic verification and admin control to ensure secure a
 5. Update your database connection in `/config`
 
 6. Start your server and visit:
-   http://localhost/your-project-folder
+   http://localhost/lost-found-system
 
 ---
 
@@ -89,4 +89,4 @@ The system also includes basic verification and admin control to ensure secure a
 
 ## 👨‍💻 Author
 
-Developed by Roqeeb
+Developed by Roqeeb as a school project
