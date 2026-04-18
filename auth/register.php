@@ -1,14 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>Register | Campus L&F</title>
-</head>
-
-<body class="min-h-screen flex items-center justify-center bg-zinc-100">
-
 <?php
 $name = $email = "";
 $success = false;
@@ -51,7 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $check->close();
       $conn->close();
 
-      // Red irect to login page
       header("Location: login.php");
       exit();
     }
@@ -61,6 +49,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Register | Campus L&F</title>
+</head>
+
+<body class="min-h-screen flex items-center justify-center bg-zinc-100">
 
 <div class="w-full max-w-md px-6">
 
