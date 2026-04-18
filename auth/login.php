@@ -1,14 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>Login | Campus L&F</title>
-</head>
-
-<body class="min-h-screen flex items-center justify-center bg-zinc-100">
-
 <?php
 session_start();
 
@@ -43,6 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Login success → create session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_role'] = 'user';
 
         header("Location: ../dashboard.php");
         exit();
@@ -59,6 +49,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Login | Campus L&F</title>
+</head>
+
+<body class="min-h-screen flex items-center justify-center bg-zinc-100">
 
 <div class="w-full max-w-md px-6">
 
