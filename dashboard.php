@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'user') {
     exit();
 }
 
-// ── MOCK DATA (replace with real PDO queries) ─────────────────────────────
+// ── MOCK DATA 
 $stats = [
     'items_posted'   => 3,
     'active_claims'  => 1,
