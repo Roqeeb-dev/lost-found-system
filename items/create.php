@@ -136,7 +136,7 @@ $preselect_type = $_GET['type'] ?? ($old['type'] ?? '');
       <p class="text-slate-500 mt-1.5 text-sm">Fill in the details below. The more specific you are, the faster it gets resolved.</p>
     </div>
 
-    <!-- ── TYPE TOGGLE (lost / found) ── -->
+    <!-- ── TYPE TOGGLE  ── -->
     <div class="mb-8">
       <div class="inline-flex bg-slate-100 p-1 rounded-xl gap-1">
         <button type="button" id="toggle-lost"
