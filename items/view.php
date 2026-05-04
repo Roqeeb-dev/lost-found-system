@@ -2,7 +2,7 @@
 session_start();
 require_once '../config/db.php';
 
-// ── Get item ID from URL ───────────────────────────────────────────────────
+// ── Get item ID from URL
 // e.g. view.php?id=5
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
@@ -11,7 +11,7 @@ if ($id === 0) {
     exit();
 }
 
-// ── Fetch the item from database ───────────────────────────────────────────
+// ── Fetch the item from database 
 // We also JOIN users so we can show who posted it
 $stmt = $conn->prepare("
     SELECT items.*, users.name AS posted_by
@@ -46,7 +46,7 @@ if (isset($_SESSION['user_id'])) {
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 
-// ── Helpers ───────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────
 $is_logged_in  = isset($_SESSION['user_id']);
 $is_owner      = $is_logged_in && $_SESSION['user_id'] == $item['user_id'];
 $is_found_item = $item['type'] === 'found';
