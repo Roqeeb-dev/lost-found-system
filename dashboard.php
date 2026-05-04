@@ -61,8 +61,15 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex">
 
+  <!-- Mobile menu toggle -->
+  <button id="sidebarToggle" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-blue-600 text-white rounded-lg">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+
   <!-- ── SIDEBAR ── -->
-  <aside class="w-60 shrink-0 bg-white border-r border-slate-200 fixed inset-y-0 left-0 z-40 flex flex-col">
+  <aside id="sidebar" class="w-60 shrink-0 bg-white border-r border-slate-200 fixed inset-y-0 left-0 z-40 flex flex-col -translate-x-full md:translate-x-0 transition-transform">
 
     <a href="../index.php" class="flex items-center gap-2.5 px-5 py-[18px] border-b border-slate-200 no-underline">
       <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm shrink-0">📍</div>
@@ -117,23 +124,23 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
   </aside>
 
   <!-- ── MAIN ── -->
-  <div class="ml-60 flex-1 flex flex-col">
+  <div class="md:ml-60 flex-1 flex flex-col">
 
-    <header class="sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center justify-between px-8 h-[60px]">
-      <h1 class="font-display text-xl text-slate-800">Good day, <?= htmlspecialchars($first_name) ?> 👋</h1>
-      <a href="items/create.php" class="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors no-underline">
+    <header class="sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 h-[60px]">
+      <h1 class="font-display text-lg md:text-xl text-slate-800">Good day, <?= htmlspecialchars($first_name) ?> 👋</h1>
+      <a href="items/create.php" class="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors no-underline">
         <span>＋</span> Report Item
       </a>
     </header>
 
-    <main class="p-8 space-y-6">
+    <main class="p-4 md:p-8 space-y-4 md:space-y-6">
 
       <!-- STATS -->
-      <div class="grid grid-cols-4 gap-4">
-        <div class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
-          <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-3">📦</div>
-          <p class="text-[28px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['items_posted'] ?></p>
-          <p class="text-sm text-slate-500 mt-1">Items Posted</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div class="bg-white border border-slate-200 rounded-lg md:rounded-xl p-4 md:p-5 hover:shadow-sm transition-shadow">
+          <div class="w-8 md:w-9 h-8 md:h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-2 md:mb-3 text-lg md:text-xl">📦</div>
+          <p class="text-xl md:text-[28px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['items_posted'] ?></p>
+          <p class="text-xs md:text-sm text-slate-500 mt-1">Items Posted</p>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
           <div class="w-9 h-9 bg-amber-50 rounded-lg flex items-center justify-center mb-3">📋</div>
@@ -153,7 +160,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
       </div>
 
       <!-- TABLES -->
-      <div class="grid grid-cols-2 gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
 
         <!-- My Items -->
         <div>
@@ -168,21 +175,21 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
                 <p class="text-xs text-slate-400">No items posted yet.</p>
               </div>
             <?php else: ?>
-              <table class="w-full">
+              <table class="w-full min-w-[300px]">
                 <thead class="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th class="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-5 py-3">Item</th>
-                    <th class="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-3 py-3">Type</th>
-                    <th class="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-3 py-3">Status</th>
+                    <th class="text-left text-[10px] md:text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-3 md:px-5 py-2 md:py-3">Item</th>
+                    <th class="text-left text-[10px] md:text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-2 md:px-3 py-2 md:py-3">Type</th>
+                    <th class="text-left text-[10px] md:text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-2 md:px-3 py-2 md:py-3">Status</th>
                     <th class="px-3 py-3"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <?php foreach ($my_items as $item): ?>
                   <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors last:border-0">
-                    <td class="px-5 py-3 text-sm font-medium text-slate-800"><?= htmlspecialchars($item['title']) ?></td>
-                    <td class="px-3 py-3"><?= typeBadge($item['type']) ?></td>
-                    <td class="px-3 py-3"><?= statusBadge($item['status']) ?></td>
+                    <td class="px-3 md:px-5 py-2 md:py-3 text-xs md:text-sm font-medium text-slate-800"><?= htmlspecialchars($item['title']) ?></td>
+                    <td class="px-2 md:px-3 py-2 md:py-3"><?= typeBadge($item['type']) ?></td>
+                    <td class="px-2 md:px-3 py-2 md:py-3"><?= statusBadge($item['status']) ?></td>
                     <td class="px-3 py-3 text-right">
                       <a href="items/view.php?id=<?= $item['id'] ?>" class="text-xs font-medium text-blue-600 hover:underline no-underline">View</a>
                     </td>
@@ -236,13 +243,13 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
       </div>
 
       <!-- QUICK ACTIONS -->
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
 
-        <a href="items/list.php" class="group flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-200 hover:shadow-sm transition-all no-underline">
-          <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl shrink-0">🔍</div>
+        <a href="items/list.php" class="group flex items-center gap-3 md:gap-4 bg-white border border-slate-200 rounded-lg md:rounded-xl p-4 md:p-5 hover:border-blue-200 hover:shadow-sm transition-all no-underline">
+          <div class="w-9 md:w-10 h-9 md:h-10 bg-blue-50 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-xl shrink-0">🔍</div>
           <div>
-            <p class="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">Browse Items</p>
-            <p class="text-xs text-slate-400 mt-0.5">Search all found items on campus</p>
+            <p class="text-xs md:text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">Browse Items</p>
+            <p class="text-[11px] md:text-xs text-slate-400 mt-0.5 hidden sm:block">Search all found items on campus</p>
           </div>
         </a>
 
@@ -267,5 +274,23 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
     </main>
   </div>
 
+  <script>
+    // Mobile sidebar toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    sidebarToggle?.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+    });
+
+    // Close sidebar when clicking a link on mobile
+    sidebar?.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth < 768) {
+          sidebar.classList.add('-translate-x-full');
+        }
+      });
+    });
+  </script>
 </body>
 </html>

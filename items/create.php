@@ -69,14 +69,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ── Insert ────────────────────────────────────────────────────────────
     if (empty($errors)) {
-        $stmt = $pdo->prepare("
+        $stmt = $conn->prepare("
             INSERT INTO items
                 (user_id, title, description, category, type, location, date, image_path, verification_question, status)
             VALUES
                 (?, ?, ?, ?, ?, ?, ?, ?, ?, 'available')
         ");
 
-        $stmt->execute([
+        $stmt->bind_param(
+            "isssssss",
             $_SESSION['user_id'],
             $title,
             $description,
@@ -85,8 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $location,
             $date,
             $image_path,
-            $verification_question,
-        ]);
+            $verification_question
+        );
+        $stmt->execute();
 
         $_SESSION['flash'] = 'Item reported successfully.';
         header('Location: ../dashboard.php');
