@@ -5,30 +5,45 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     exit();
 }
 
-// ── MOCK DATA (replace with real PDO queries) ─────────────────────────────
-$stats = [
-    'total_items'     => 128,
-    'pending_claims'  => 9,
-    'resolved_today'  => 4,
-    'total_users'     => 312,
-    'active_items'    => 73,
-    'items_this_week' => 22,
-];
+require_once '../config/db.php';
 
-$pending_claims = [
-    ['id' => 1, 'item_title' => 'Silver ID Card',    'item_id' => 12, 'claimant' => 'Adaeze Okonkwo',  'submitted_at' => '2026-04-17 10:22'],
-    ['id' => 2, 'item_title' => 'Blue Backpack',     'item_id' => 8,  'claimant' => 'Chukwuemeka B.',  'submitted_at' => '2026-04-17 09:05'],
-    ['id' => 3, 'item_title' => 'Samsung Galaxy A54','item_id' => 15, 'claimant' => 'Fatimah Lawal',   'submitted_at' => '2026-04-16 22:40'],
-    ['id' => 4, 'item_title' => 'Physics Textbook',  'item_id' => 6,  'claimant' => 'Ibrahim Yusuf',   'submitted_at' => '2026-04-16 18:10'],
-];
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM items");
+$stmt->execute();
+$stats = $stmt->get_result()->fetch_assoc();
+$stats['total_items'] = $stats['count'] ?? 0;
 
-$recent_items = [
-    ['id' => 17, 'title' => 'Black Umbrella',      'type' => 'found', 'status' => 'active',   'created_at' => '2026-04-18'],
-    ['id' => 16, 'title' => 'Key Bundle',           'type' => 'found', 'status' => 'claimed',  'created_at' => '2026-04-17'],
-    ['id' => 15, 'title' => 'Samsung Galaxy A54',  'type' => 'lost',  'status' => 'active',   'created_at' => '2026-04-17'],
-    ['id' => 14, 'title' => 'Laptop Charger',      'type' => 'lost',  'status' => 'resolved', 'created_at' => '2026-04-16'],
-    ['id' => 13, 'title' => 'Water Bottle',        'type' => 'found', 'status' => 'resolved', 'created_at' => '2026-04-16'],
-];
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM claims WHERE status = 'pending'");
+$stmt->execute();
+$pending = $stmt->get_result()->fetch_assoc();
+$stats['pending_claims'] = $pending['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM claims WHERE status = 'approved' AND submitted_at >= CURDATE()");
+$stmt->execute();
+$resolved_today = $stmt->get_result()->fetch_assoc();
+$stats['resolved_today'] = $resolved_today['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM users");
+$stmt->execute();
+$total_users = $stmt->get_result()->fetch_assoc();
+$stats['total_users'] = $total_users['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM items WHERE status = 'active'");
+$stmt->execute();
+$active_items = $stmt->get_result()->fetch_assoc();
+$stats['active_items'] = $active_items['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM items WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
+$stmt->execute();
+$items_this_week = $stmt->get_result()->fetch_assoc();
+$stats['items_this_week'] = $items_this_week['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT claims.id, claims.item_id, items.title AS item_title, users.name AS claimant, claims.submitted_at FROM claims LEFT JOIN items ON items.id = claims.item_id LEFT JOIN users ON users.id = claims.user_id WHERE claims.status = 'pending' ORDER BY claims.submitted_at DESC LIMIT 5");
+$stmt->execute();
+$pending_claims = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+$stmt = $conn->prepare("SELECT id, title, type, status FROM items ORDER BY created_at DESC LIMIT 5");
+$stmt->execute();
+$recent_items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 function typeBadge($type) {
     if ($type === 'found') return '<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-700">Found</span>';
@@ -82,7 +97,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
   <aside id="sidebar" class="w-60 shrink-0 bg-slate-900 fixed inset-y-0 left-0 z-40 flex flex-col -translate-x-full md:translate-x-0 transition-transform">
 
     <a href="../index.php" class="flex items-center gap-2.5 px-5 py-[18px] border-b border-white/[0.07] no-underline">
-      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm shrink-0">📍</div>
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm shrink-0">L&F</div>
       <span class="text-sm font-semibold text-white">Campus L&F</span>
       <span class="ml-auto text-[9px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">Admin</span>
     </a>
@@ -91,26 +106,26 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-2 pt-3 pb-1.5">Overview</p>
       <a href="admin/dashboard.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-blue-300 bg-blue-500/20 mb-0.5 no-underline">
-        <span class="w-5 text-center">📊</span> Dashboard
+        <span class="w-5 text-center font-bold">•</span> Dashboard
       </a>
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-2 pt-5 pb-1.5">Manage</p>
       <a href="admin/claims.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
-        <span class="w-5 text-center">📋</span> Claims
+        <span class="w-5 text-center font-bold">•</span> Claims
         <?php if ($stats['pending_claims'] > 0): ?>
           <span class="ml-auto text-[11px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full leading-none badge-pulse"><?= $stats['pending_claims'] ?></span>
         <?php endif; ?>
       </a>
       <a href="admin/items.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
-        <span class="w-5 text-center">📦</span> All Items
+        <span class="w-5 text-center font-bold">•</span> All Items
       </a>
       <a href="admin/users.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
-        <span class="w-5 text-center">👥</span> Users
+        <span class="w-5 text-center font-bold">•</span> Users
       </a>
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-2 pt-5 pb-1.5">Account</p>
       <a href="admin/settings.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white no-underline transition-colors">
-        <span class="w-5 text-center">⚙️</span> Settings
+        <span class="w-5 text-center font-bold">•</span> Settings
       </a>
 
     </nav>
@@ -126,7 +141,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         </div>
       </div>
       <a href="auth/logout.php" class="flex items-center gap-2 px-2.5 py-2 mt-1 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 no-underline transition-colors">
-        <span>↩</span> Log out
+        Log out
       </a>
     </div>
   </aside>
@@ -138,18 +153,37 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
       <h1 class="font-display text-lg md:text-xl text-slate-800">Admin Dashboard</h1>
       <?php if ($stats['pending_claims'] > 0): ?>
         <a href="admin/claims.php" class="flex items-center gap-1.5 text-xs font-semibold text-red-600 bg-red-50 px-3 py-1.5 rounded-full no-underline hover:bg-red-100 transition-colors">
-          ⚠ <?= $stats['pending_claims'] ?> pending claim<?= $stats['pending_claims'] > 1 ? 's' : '' ?>
+          <?= $stats['pending_claims'] ?> pending claim<?= $stats['pending_claims'] > 1 ? 's' : '' ?>
         </a>
       <?php endif; ?>
     </header>
 
     <main class="p-4 md:p-8 space-y-4 md:space-y-6">
 
+      <!-- Flash Messages -->
+      <?php
+      $flash = $_SESSION['flash'] ?? null;
+      $flash_error = $_SESSION['flash_error'] ?? null;
+      unset($_SESSION['flash'], $_SESSION['flash_error']);
+      ?>
+      <?php if ($flash): ?>
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+          <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+          <p class="text-sm text-green-800 font-medium"><?= htmlspecialchars($flash) ?></p>
+        </div>
+      <?php endif; ?>
+      <?php if ($flash_error): ?>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+          <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-sm">!</div>
+          <p class="text-sm text-red-800 font-medium"><?= htmlspecialchars($flash_error) ?></p>
+        </div>
+      <?php endif; ?>
+
       <!-- STATS -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
 
         <div class="bg-white border border-slate-200 rounded-lg md:rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center md:gap-4 hover:shadow-sm transition-shadow">
-          <div class="w-10 md:w-11 h-10 md:h-11 bg-blue-50 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-xl shrink-0">📦</div>
+          <div class="w-10 md:w-11 h-10 md:h-11 bg-blue-50 rounded-lg md:rounded-xl flex items-center justify-center shrink-0"></div>
           <div>
             <p class="text-xl md:text-[26px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['total_items'] ?></p>
             <p class="text-xs md:text-sm text-slate-500 mt-1">Total Items</p>
@@ -158,7 +192,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         </div>
 
         <div class="bg-white border border-red-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition-shadow">
-          <div class="w-11 h-11 bg-red-50 rounded-xl flex items-center justify-center text-xl shrink-0">📋</div>
+          <div class="w-11 h-11 bg-red-50 rounded-xl flex items-center justify-center shrink-0"></div>
           <div>
             <p class="text-[26px] font-bold text-red-600 leading-none tracking-tight"><?= $stats['pending_claims'] ?></p>
             <p class="text-sm text-slate-500 mt-1">Pending Claims</p>
@@ -167,7 +201,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         </div>
 
         <div class="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition-shadow">
-          <div class="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center text-xl shrink-0">✅</div>
+          <div class="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center shrink-0"></div>
           <div>
             <p class="text-[26px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['resolved_today'] ?></p>
             <p class="text-sm text-slate-500 mt-1">Resolved Today</p>
@@ -176,7 +210,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         </div>
 
         <div class="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition-shadow">
-          <div class="w-11 h-11 bg-purple-50 rounded-xl flex items-center justify-center text-xl shrink-0">👥</div>
+          <div class="w-11 h-11 bg-purple-50 rounded-xl flex items-center justify-center shrink-0"></div>
           <div>
             <p class="text-[26px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['total_users'] ?></p>
             <p class="text-sm text-slate-500 mt-1">Registered Users</p>
@@ -184,7 +218,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         </div>
 
         <div class="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition-shadow">
-          <div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center text-xl shrink-0">🔍</div>
+          <div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center shrink-0"></div>
           <div>
             <p class="text-[26px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['active_items'] ?></p>
             <p class="text-sm text-slate-500 mt-1">Active Listings</p>
@@ -194,7 +228,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
 
         <!-- Quick actions card -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center gap-4">
-          <div class="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center text-xl shrink-0">⚡</div>
+          <div class="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center shrink-0"></div>
           <div>
             <p class="text-sm font-semibold text-white mb-2">Quick Links</p>
             <div class="flex flex-col gap-1">
@@ -218,8 +252,9 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
             <?php if (empty($pending_claims)): ?>
               <div class="py-12 text-center">
-                <p class="text-3xl mb-2">✅</p>
-                <p class="text-xs text-slate-400">No pending claims right now.</p>
+                <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">No</div>
+                <p class="text-sm font-semibold text-slate-800">No pending claims</p>
+                <p class="text-xs text-slate-400">Nothing is awaiting review at the moment.</p>
               </div>
             <?php else: ?>
               <table class="w-full min-w-[400px] md:min-w-full">
@@ -262,6 +297,13 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
               <a href="admin/items.php" class="text-xs font-medium text-blue-600 hover:underline no-underline">View all →</a>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <?php if (empty($recent_items)): ?>
+                <div class="py-12 text-center">
+                  <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">No</div>
+                  <p class="text-sm font-semibold text-slate-800">No recent items</p>
+                  <p class="text-xs text-slate-400">No items have been added yet.</p>
+                </div>
+              <?php else: ?>
               <table class="w-full min-w-[300px] md:min-w-full">
                 <thead class="bg-slate-50 border-b border-slate-200">
                   <tr>
@@ -284,6 +326,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
                   <?php endforeach; ?>
                 </tbody>
               </table>
+              <?php endif; ?>
             </div>
           </div>
 

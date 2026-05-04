@@ -7,28 +7,29 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'user') {
 
 require_once 'config/db.php';
 
-// ── Fetch user's items ───────────────────────────────────────────────────
+// ── Fetch user's claims with item details ───────────────────────────────
 $user_id = $_SESSION['user_id'];
 $stmt = $conn->prepare("
-    SELECT * FROM items
-    WHERE user_id = ?
-    ORDER BY created_at DESC
+    SELECT
+        claims.*,
+        items.title AS item_title,
+        items.image_path,
+        items.verification_question
+    FROM claims
+    LEFT JOIN items ON items.id = claims.item_id
+    WHERE claims.user_id = ?
+    ORDER BY claims.submitted_at DESC
 ");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$my_items = $result->fetch_all(MYSQLI_ASSOC);
-
-function typeBadge($type) {
-    if ($type === 'found') return '<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-700">Found</span>';
-    return '<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700">Lost</span>';
-}
+$claims = $result->fetch_all(MYSQLI_ASSOC);
 
 function statusBadge($status) {
     $map = [
-        'active'   => 'bg-blue-100 text-blue-700',
-        'claimed'  => 'bg-purple-100 text-purple-700',
-        'resolved' => 'bg-green-100 text-green-700',
+        'pending'  => 'bg-amber-100 text-amber-700',
+        'approved' => 'bg-green-100 text-green-700',
+        'rejected' => 'bg-red-100 text-red-700',
     ];
     $cls = $map[$status] ?? 'bg-slate-100 text-slate-600';
     return "<span class=\"text-xs font-semibold px-2.5 py-0.5 rounded-full $cls\">" . ucfirst($status) . "</span>";
@@ -42,7 +43,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Items | Campus L&F</title>
+  <title>My Claims | Campus L&F</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,10 +84,10 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
       </a>
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 px-2 pt-5 pb-1.5">My Activity</p>
-      <a href="my-items.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-blue-600 bg-blue-50 mb-0.5 no-underline">
+      <a href="my-items.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800 mb-0.5 no-underline transition-colors">
         <span class="w-5 text-center">📦</span> My Items
       </a>
-      <a href="claims.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800 mb-0.5 no-underline transition-colors">
+      <a href="claims.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-blue-600 bg-blue-50 mb-0.5 no-underline">
         <span class="w-5 text-center">📋</span> My Claims
       </a>
 
@@ -117,9 +118,9 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
   <div class="md:ml-60 flex-1 flex flex-col">
 
     <header class="sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 h-[60px]">
-      <h1 class="font-display text-lg md:text-xl text-slate-800">My Items</h1>
-      <a href="items/create.php" class="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors no-underline">
-        <span>＋</span> Report Item
+      <h1 class="font-display text-lg md:text-xl text-slate-800">My Claims</h1>
+      <a href="items/list.php" class="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors no-underline">
+        <span>＋</span> Browse Items
       </a>
     </header>
 
@@ -144,28 +145,28 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         </div>
       <?php endif; ?>
 
-      <?php if (empty($my_items)): ?>
+      <?php if (empty($claims)): ?>
         <!-- Empty State -->
         <div class="text-center py-16">
           <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-2xl">📦</span>
+            <span class="text-2xl">📋</span>
           </div>
-          <h3 class="text-lg font-semibold text-slate-800 mb-2">No items posted yet</h3>
-          <p class="text-slate-500 mb-6 max-w-md mx-auto">You haven't reported any lost or found items yet. Start by reporting something you've lost or found on campus.</p>
-          <a href="items/create.php" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors no-underline">
-            <span>＋</span> Report Your First Item
+          <h3 class="text-lg font-semibold text-slate-800 mb-2">No claims yet</h3>
+          <p class="text-slate-500 mb-6 max-w-md mx-auto">You haven't submitted any claims for found items. Browse available items to find something you've lost.</p>
+          <a href="items/list.php" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors no-underline">
+            <span>🔍</span> Browse Found Items
           </a>
         </div>
       <?php else: ?>
-        <!-- Items List -->
+        <!-- Claims List -->
         <div class="space-y-4">
-          <?php foreach ($my_items as $item): ?>
+          <?php foreach ($claims as $claim): ?>
             <div class="bg-white border border-slate-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
               <div class="flex flex-col md:flex-row md:items-center gap-4">
                 <!-- Item Image -->
                 <div class="flex-shrink-0">
-                  <?php if ($item['image_path']): ?>
-                    <img src="<?= htmlspecialchars($item['image_path']) ?>" alt="Item" class="w-16 h-16 object-cover rounded-lg">
+                  <?php if ($claim['image_path']): ?>
+                    <img src="<?= htmlspecialchars($claim['image_path']) ?>" alt="Item" class="w-16 h-16 object-cover rounded-lg">
                   <?php else: ?>
                     <div class="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
                       📦
@@ -173,40 +174,34 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
                   <?php endif; ?>
                 </div>
 
-                <!-- Item Details -->
+                <!-- Claim Details -->
                 <div class="flex-1 min-w-0">
                   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                     <h3 class="font-semibold text-slate-800 truncate">
-                      <a href="items/view.php?id=<?= $item['id'] ?>" class="hover:text-blue-600 transition-colors no-underline">
-                        <?= htmlspecialchars($item['title']) ?>
+                      <a href="items/view.php?id=<?= $claim['item_id'] ?>" class="hover:text-blue-600 transition-colors no-underline">
+                        <?= htmlspecialchars($claim['item_title']) ?>
                       </a>
                     </h3>
-                    <div class="flex items-center gap-2">
-                      <?= typeBadge($item['type']) ?>
-                      <?= statusBadge($item['status']) ?>
-                    </div>
+                    <?= statusBadge($claim['status']) ?>
                   </div>
 
                   <p class="text-sm text-slate-500 mb-2">
-                    <?= htmlspecialchars($item['location']) ?> • Posted on <?= date('M j, Y', strtotime($item['created_at'])) ?>
+                    Submitted on <?= date('M j, Y \a\t g:i A', strtotime($claim['submitted_at'])) ?>
                   </p>
 
-                  <p class="text-sm text-slate-600 line-clamp-2">
-                    <?= htmlspecialchars(substr($item['description'], 0, 150)) ?><?= strlen($item['description']) > 150 ? '...' : '' ?>
-                  </p>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex items-center gap-2 flex-shrink-0">
-                  <a href="items/view.php?id=<?= $item['id'] ?>" class="px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded transition-colors no-underline">
-                    View
-                  </a>
-                  <a href="items/edit.php?id=<?= $item['id'] ?>" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 rounded transition-colors no-underline">
-                    Edit
-                  </a>
-                  <button onclick="confirmDelete(<?= $item['id'] ?>, '<?= htmlspecialchars(addslashes($item['title'])) ?>')" class="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded transition-colors">
-                    Delete
-                  </button>
+                  <?php if ($claim['status'] === 'pending'): ?>
+                    <p class="text-sm text-amber-600">
+                      Your claim is being reviewed by an administrator.
+                    </p>
+                  <?php elseif ($claim['status'] === 'approved'): ?>
+                    <p class="text-sm text-green-600">
+                      Your claim has been approved! Contact the item owner to arrange pickup.
+                    </p>
+                  <?php elseif ($claim['status'] === 'rejected'): ?>
+                    <p class="text-sm text-red-600">
+                      Your claim was not approved. The verification answer didn't match.
+                    </p>
+                  <?php endif; ?>
                 </div>
               </div>
             </div>
@@ -234,13 +229,6 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         }
       });
     });
-
-    // Confirm delete function
-    function confirmDelete(itemId, itemTitle) {
-      if (confirm(`Are you sure you want to delete "${itemTitle}"? This action cannot be undone.`)) {
-        window.location.href = `items/delete.php?id=${itemId}`;
-      }
-    }
   </script>
 </body>
 </html>

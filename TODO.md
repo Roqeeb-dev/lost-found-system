@@ -49,12 +49,13 @@
 
 ## 🟠 Priority 2 — Core workflows (app is incomplete without these)
 
-- [ ] `claims.php` (student) — list user's own claims, status badges, link to item
-- [ ] `my-items.php` — list user's own posted items, edit and delete links
-- [ ] `items/edit.php` — pre-filled edit form, update DB row, restrict to item owner
-- [ ] `admin/claims.php` — full claims management: view question + given answer side by side, approve/reject buttons that update `claims.status` and `items.status`
-- [ ] `admin/items.php` — list all items, filter by status/type, edit, delete, mark resolved
-- [ ] Flash message display — read `$_SESSION['flash']` at top of dashboard/list pages and show a toast or banner, then unset it
+- [x] `claims.php` (student) — list user's own claims, status badges, link to item
+- [x] `my-items.php` — list user's own posted items, edit and delete links
+- [x] `items/edit.php` — pre-filled edit form, update DB row, restrict to item owner
+- [x] `admin/claims.php` — full claims management: view question + given answer side by side, approve/reject buttons that update `claims.status` and `items.status`
+- [x] `admin/items.php` — list all items, filter by status/type, edit, delete, mark resolved
+- [x] Flash message display — read `$_SESSION['flash']` at top of dashboard/list pages and show a toast or banner, then unset it
+- [x] Replace emojis in dashboards with standard icons/text
 
 ---
 

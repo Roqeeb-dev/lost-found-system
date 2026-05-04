@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $verification_question = trim($_POST['verification_question'] ?? '');
     $old = compact('title','description','category','type','location','date','verification_question');
 
-    // ── Validation ───────────────────────────────────────────────────────
+    // ── Validation ─
     if (empty($title))                       $errors['title']       = 'Item name is required.';
     if (empty($description))                 $errors['description'] = 'Description is required.';
     if (empty($category))                    $errors['category']    = 'Please select a category.';
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($verification_question))
         $errors['verification_question'] = 'Verification question is required.';
 
-    // ── Image Upload ──────────────────────────────────────────────────────
+    // ── Image Upload 
     $image_path = null;
 
     if (empty($_FILES['image']['name'])) {
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ── Insert ────────────────────────────────────────────────────────────
+    // ── Insert ──────
     if (empty($errors)) {
         $stmt = $conn->prepare("
             INSERT INTO items
@@ -76,17 +76,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 (?, ?, ?, ?, ?, ?, ?, ?, ?, 'available')
         ");
 
-        $stmt->bind_param(
-            "isssssss",
-            $_SESSION['user_id'],
-            $title,
-            $description,
-            $category,
-            $type,
-            $location,
-            $date,
-            $image_path,
-            $verification_question
+       $stmt->bind_param(
+          "issssssss",             
+          $_SESSION['user_id'],     
+          $title,                   
+          $description,             
+          $category,                
+          $type,                    
+          $location,                
+          $date,                    
+          $image_path,              
+          $verification_question     
         );
         $stmt->execute();
 
@@ -329,7 +329,7 @@ $preselect_type = $_GET['type'] ?? ($old['type'] ?? '');
   </div>
 
   <script>
-    // ── Type toggle ────────────────────────────────────────────────────────
+    // ── Type toggle ──
     function setType(type) {
       document.getElementById('type-input').value = type;
 
@@ -351,7 +351,7 @@ $preselect_type = $_GET['type'] ?? ($old['type'] ?? '');
       }
     }
 
-    // ── Image preview ──────────────────────────────────────────────────────
+    // ── Image preview 
     function previewImage(input) {
       if (!input.files || !input.files[0]) return;
       const reader = new FileReader();
