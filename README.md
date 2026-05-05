@@ -4,31 +4,6 @@ Campus Lost & Found is a university-focused lost-and-found web application built
 
 ---
 
-## 🚀 Current Status
-
-This repository includes:
-
-- `index.php`: marketing/home landing page
-- `auth/login.php`: user login form and authentication logic
-- `auth/register.php`: user signup form and registration logic
-- `dashboard.php`: user dashboard UI with mock data
-- `admin/dashboard.php`: admin dashboard UI with mock data
-- `items/create.php`: item reporting form, image upload, and validation logic
-- `config/db.php`: MySQL connection setup
-- `templates/navbar.php` / `templates/footer.php`: common layout components
-
-Parts still in progress or currently placeholder:
-
-- `items/list.php`: browse items page (placeholder)
-- `items/view.php`: item detail page (empty)
-- `my-items.php`: user items page (placeholder)
-- `admin/manage_claims.php`: admin claim review page (empty)
-- `auth/logout.php`: logout handling (empty)
-- `claims/` directory: no claim pages yet
-- `items/create.php`: has a PDO usage bug and needs a consistent database layer
-
----
-
 ## 🛠️ Tech Stack
 
 - Frontend: HTML, Tailwind CSS
@@ -111,50 +86,6 @@ CREATE TABLE claims (
 ```
 http://localhost/lost-found-system
 ```
-
----
-
-## ✅ What Works Today
-
-- User registration and login
-- Landing page with product messaging
-- Item reporting form with validation and image upload
-- Basic dashboard UIs for user and admin
-- Shared navbar and footer
-
----
-
-## ⚠️ Known Issues
-
-- `auth/logout.php` is empty; session logout is not implemented.
-- `items/list.php` and `items/view.php` are not implemented.
-- `my-items.php` is currently placeholder content.
-- `admin/manage_claims.php` is empty.
-- `claims/` folder has no pages yet.
-- `items/create.php` uses `require_once '../config/db.php'` but then calls `$pdo->prepare(...)`; the config file currently provides `$conn` via mysqli.
-- Dashboard pages use hardcoded mock data and do not fetch real database records.
-
----
-
-## 📌 Recommended Next Steps
-
-1. Standardize database access across the app (`mysqli` or `PDO`).
-2. Implement logout functionality in `auth/logout.php`.
-3. Build item browsing, filtering, and item detail pages.
-4. Create claim submission and claim review flows.
-5. Wire dashboard pages to real database data.
-6. Harden security: prepared statements, session checks, input sanitization, and CSRF protection.
-
----
-
-## 🎯 Future Improvements
-
-- Add search and category filtering on item listings
-- Add email confirmation or notification support
-- Add pagination for items and claims
-- Add roles and permissions for admin and user actions
-- Add a dedicated admin item management page
-- Add password recovery/reset flow
 
 ---
 
