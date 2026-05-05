@@ -5,24 +5,42 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'user') {
     exit();
 }
 
-// ── MOCK DATA 
-$stats = [
-    'items_posted'   => 3,
-    'active_claims'  => 1,
-    'items_resolved' => 2,
-    'items_found'    => 47,
-];
+require_once 'config/db.php';
 
-$my_items = [
-    ['id' => 1, 'title' => 'Black Backpack',    'type' => 'lost',  'status' => 'active',   'location' => 'Engineering Block', 'created_at' => '2026-04-15'],
-    ['id' => 2, 'title' => 'Samsung Earbuds',   'type' => 'lost',  'status' => 'claimed',  'location' => 'Library',           'created_at' => '2026-04-10'],
-    ['id' => 3, 'title' => 'Blue Water Bottle', 'type' => 'found', 'status' => 'resolved', 'location' => 'Cafeteria',         'created_at' => '2026-04-08'],
-];
+$user_id = $_SESSION['user_id'];
 
-$my_claims = [
-    ['id' => 1, 'item_title' => 'Silver ID Card', 'item_id' => 12, 'status' => 'pending',  'submitted_at' => '2026-04-16'],
-    ['id' => 2, 'item_title' => 'Maths Textbook', 'item_id' => 9,  'status' => 'rejected', 'submitted_at' => '2026-04-11'],
-];
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM items WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stats = $stmt->get_result()->fetch_assoc();
+$stats['items_posted'] = $stats['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM claims WHERE user_id = ? AND status = 'pending'");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$active_claims = $stmt->get_result()->fetch_assoc();
+$stats['active_claims'] = $active_claims['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM items WHERE user_id = ? AND status = 'resolved'");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$resolved_items = $stmt->get_result()->fetch_assoc();
+$stats['items_resolved'] = $resolved_items['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM items WHERE type = 'found' AND status = 'available'");
+$stmt->execute();
+$found_items = $stmt->get_result()->fetch_assoc();
+$stats['items_found'] = $found_items['count'] ?? 0;
+
+$stmt = $conn->prepare("SELECT * FROM items WHERE user_id = ? ORDER BY created_at DESC");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$my_items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+$stmt = $conn->prepare("SELECT claims.*, items.title AS item_title FROM claims LEFT JOIN items ON items.id = claims.item_id WHERE claims.user_id = ? ORDER BY claims.submitted_at DESC");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$my_claims = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 function typeBadge($type) {
     if ($type === 'found') return '<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-700">Found</span>';
@@ -61,11 +79,18 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex">
 
+  <!-- Mobile menu toggle -->
+  <button id="sidebarToggle" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-blue-600 text-white rounded-lg">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+
   <!-- ── SIDEBAR ── -->
-  <aside class="w-60 shrink-0 bg-white border-r border-slate-200 fixed inset-y-0 left-0 z-40 flex flex-col">
+  <aside id="sidebar" class="w-60 shrink-0 bg-white border-r border-slate-200 fixed inset-y-0 left-0 z-40 flex flex-col -translate-x-full md:translate-x-0 transition-transform">
 
     <a href="../index.php" class="flex items-center gap-2.5 px-5 py-[18px] border-b border-slate-200 no-underline">
-      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm shrink-0">📍</div>
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0">L&F</div>
       <span class="text-sm font-semibold text-slate-800">Campus <span class="text-blue-600">L&F</span></span>
     </a>
 
@@ -73,21 +98,21 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 px-2 pt-3 pb-1.5">Menu</p>
       <a href="dashboard.php"    class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-blue-600 bg-blue-50 mb-0.5 no-underline">
-        <span class="w-5 text-center">🏠</span> Dashboard
+        <span class="w-5 text-center font-bold">•</span> Dashboard
       </a>
       <a href="items/list.php"   class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800 mb-0.5 no-underline transition-colors">
-        <span class="w-5 text-center">🔍</span> Browse Items
+        <span class="w-5 text-center font-bold">•</span> Browse Items
       </a>
       <a href="items/create.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800 mb-0.5 no-underline transition-colors">
-        <span class="w-5 text-center">＋</span> Report Item
+        <span class="w-5 text-center font-bold">•</span> Report Item
       </a>
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 px-2 pt-5 pb-1.5">My Activity</p>
       <a href="my-items.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800 mb-0.5 no-underline transition-colors">
-        <span class="w-5 text-center">📦</span> My Items
+        <span class="w-5 text-center font-bold">•</span> My Items
       </a>
       <a href="claims.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800 mb-0.5 no-underline transition-colors">
-        <span class="w-5 text-center">📋</span> My Claims
+        <span class="w-5 text-center font-bold">•</span> My Claims
         <?php if ($stats['active_claims'] > 0): ?>
           <span class="ml-auto text-[11px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full leading-none"><?= $stats['active_claims'] ?></span>
         <?php endif; ?>
@@ -95,7 +120,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 px-2 pt-5 pb-1.5">Account</p>
       <a href="profile.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800 no-underline transition-colors">
-        <span class="w-5 text-center">👤</span> Profile
+        <span class="w-5 text-center font-bold">•</span> Profile
       </a>
 
     </nav>
@@ -111,49 +136,68 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         </div>
       </div>
       <a href="auth/logout.php" class="flex items-center gap-2 px-2.5 py-2 mt-1 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 no-underline transition-colors">
-        <span>↩</span> Log out
+        Log out
       </a>
     </div>
   </aside>
 
   <!-- ── MAIN ── -->
-  <div class="ml-60 flex-1 flex flex-col">
+  <div class="md:ml-60 flex-1 flex flex-col">
 
-    <header class="sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center justify-between px-8 h-[60px]">
-      <h1 class="font-display text-xl text-slate-800">Good day, <?= htmlspecialchars($first_name) ?> 👋</h1>
-      <a href="items/create.php" class="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors no-underline">
-        <span>＋</span> Report Item
+    <header class="sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 h-[60px]">
+      <h1 class="font-display text-lg md:text-xl text-slate-800">Good day, <?= htmlspecialchars($first_name) ?></h1>
+      <a href="items/create.php" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors no-underline">
+        + Report Item
       </a>
     </header>
 
-    <main class="p-8 space-y-6">
+    <main class="p-4 md:p-8 space-y-4 md:space-y-6">
+
+      <!-- Flash Messages -->
+      <?php
+      $flash = $_SESSION['flash'] ?? null;
+      $flash_error = $_SESSION['flash_error'] ?? null;
+      unset($_SESSION['flash'], $_SESSION['flash_error']);
+      ?>
+      <?php if ($flash): ?>
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+          <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+          <p class="text-sm text-green-800 font-medium"><?= htmlspecialchars($flash) ?></p>
+        </div>
+      <?php endif; ?>
+      <?php if ($flash_error): ?>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+          <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-sm">!</div>
+          <p class="text-sm text-red-800 font-medium"><?= htmlspecialchars($flash_error) ?></p>
+        </div>
+      <?php endif; ?>
 
       <!-- STATS -->
-      <div class="grid grid-cols-4 gap-4">
-        <div class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
-          <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-3">📦</div>
-          <p class="text-[28px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['items_posted'] ?></p>
-          <p class="text-sm text-slate-500 mt-1">Items Posted</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div class="bg-white border border-slate-200 rounded-lg md:rounded-xl p-4 md:p-5 hover:shadow-sm transition-shadow">
+          <div class="w-8 md:w-9 h-8 md:h-9 bg-blue-50 rounded-lg mb-2 md:mb-3"></div>
+          <p class="text-xl md:text-[28px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['items_posted'] ?></p>
+          <p class="text-xs md:text-sm text-slate-500 mt-1">Items Posted</p>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
-          <div class="w-9 h-9 bg-amber-50 rounded-lg flex items-center justify-center mb-3">📋</div>
+          <div class="w-9 h-9 bg-amber-50 rounded-lg mb-3"></div>
           <p class="text-[28px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['active_claims'] ?></p>
           <p class="text-sm text-slate-500 mt-1">Active Claims</p>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
-          <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center mb-3">✅</div>
+          <div class="w-9 h-9 bg-green-50 rounded-lg mb-3"></div>
           <p class="text-[28px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['items_resolved'] ?></p>
           <p class="text-sm text-slate-500 mt-1">Items Resolved</p>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
-          <div class="w-9 h-9 bg-purple-50 rounded-lg flex items-center justify-center mb-3">🔍</div>
+          <div class="w-9 h-9 bg-purple-50 rounded-lg mb-3"></div>
           <p class="text-[28px] font-bold text-slate-800 leading-none tracking-tight"><?= $stats['items_found'] ?></p>
           <p class="text-sm text-slate-500 mt-1">Found on Campus Today</p>
         </div>
       </div>
 
       <!-- TABLES -->
-      <div class="grid grid-cols-2 gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
 
         <!-- My Items -->
         <div>
@@ -168,21 +212,21 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
                 <p class="text-xs text-slate-400">No items posted yet.</p>
               </div>
             <?php else: ?>
-              <table class="w-full">
+              <table class="w-full min-w-[300px]">
                 <thead class="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th class="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-5 py-3">Item</th>
-                    <th class="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-3 py-3">Type</th>
-                    <th class="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-3 py-3">Status</th>
+                    <th class="text-left text-[10px] md:text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-3 md:px-5 py-2 md:py-3">Item</th>
+                    <th class="text-left text-[10px] md:text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-2 md:px-3 py-2 md:py-3">Type</th>
+                    <th class="text-left text-[10px] md:text-[11px] font-semibold uppercase tracking-wide text-slate-400 px-2 md:px-3 py-2 md:py-3">Status</th>
                     <th class="px-3 py-3"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <?php foreach ($my_items as $item): ?>
                   <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors last:border-0">
-                    <td class="px-5 py-3 text-sm font-medium text-slate-800"><?= htmlspecialchars($item['title']) ?></td>
-                    <td class="px-3 py-3"><?= typeBadge($item['type']) ?></td>
-                    <td class="px-3 py-3"><?= statusBadge($item['status']) ?></td>
+                    <td class="px-3 md:px-5 py-2 md:py-3 text-xs md:text-sm font-medium text-slate-800"><?= htmlspecialchars($item['title']) ?></td>
+                    <td class="px-2 md:px-3 py-2 md:py-3"><?= typeBadge($item['type']) ?></td>
+                    <td class="px-2 md:px-3 py-2 md:py-3"><?= statusBadge($item['status']) ?></td>
                     <td class="px-3 py-3 text-right">
                       <a href="items/view.php?id=<?= $item['id'] ?>" class="text-xs font-medium text-blue-600 hover:underline no-underline">View</a>
                     </td>
@@ -203,8 +247,9 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
             <?php if (empty($my_claims)): ?>
               <div class="py-12 text-center">
-                <p class="text-3xl mb-2">📋</p>
-                <p class="text-xs text-slate-400">No claims submitted yet.</p>
+                <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">No</div>
+                <p class="text-sm font-semibold text-slate-800">No claims submitted yet</p>
+                <p class="text-xs text-slate-400">You haven’t submitted any claims yet.</p>
               </div>
             <?php else: ?>
               <table class="w-full">
@@ -236,18 +281,18 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
       </div>
 
       <!-- QUICK ACTIONS -->
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
 
-        <a href="items/list.php" class="group flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-200 hover:shadow-sm transition-all no-underline">
-          <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl shrink-0">🔍</div>
+        <a href="items/list.php" class="group flex items-center gap-3 md:gap-4 bg-white border border-slate-200 rounded-lg md:rounded-xl p-4 md:p-5 hover:border-blue-200 hover:shadow-sm transition-all no-underline">
+          <div class="w-9 md:w-10 h-9 md:h-10 bg-blue-50 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-xl shrink-0">Search</div>
           <div>
-            <p class="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">Browse Items</p>
-            <p class="text-xs text-slate-400 mt-0.5">Search all found items on campus</p>
+            <p class="text-xs md:text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">Browse Items</p>
+            <p class="text-[11px] md:text-xs text-slate-400 mt-0.5 hidden sm:block">Search all found items on campus</p>
           </div>
         </a>
 
         <a href="items/create.php" class="group flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-200 hover:shadow-sm transition-all no-underline">
-          <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-xl shrink-0">＋</div>
+          <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-xl shrink-0">Add</div>
           <div>
             <p class="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">Report Lost Item</p>
             <p class="text-xs text-slate-400 mt-0.5">Post something you've lost</p>
@@ -255,7 +300,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         </a>
 
         <a href="items/create.php?type=found" class="group flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-200 hover:shadow-sm transition-all no-underline">
-          <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-xl shrink-0">📦</div>
+          <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-xl shrink-0">Found</div>
           <div>
             <p class="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">Report Found Item</p>
             <p class="text-xs text-slate-400 mt-0.5">You found something? Post it here</p>
@@ -267,5 +312,23 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
     </main>
   </div>
 
+  <script>
+    // Mobile sidebar toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    sidebarToggle?.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+    });
+
+    // Close sidebar when clicking a link on mobile
+    sidebar?.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth < 768) {
+          sidebar.classList.add('-translate-x-full');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
