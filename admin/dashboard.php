@@ -140,7 +140,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
           <p class="text-xs text-slate-500">Administrator</p>
         </div>
       </div>
-      <a href="auth/logout.php" class="flex items-center gap-2 px-2.5 py-2 mt-1 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 no-underline transition-colors">
+      <a href="../auth/logout.php" class="flex items-center gap-2 px-2.5 py-2 mt-1 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 no-underline transition-colors">
         Log out
       </a>
     </div>
@@ -294,7 +294,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
           <div>
             <div class="flex items-center justify-between mb-3">
               <h2 class="text-sm font-semibold text-slate-800">Recent Items</h2>
-              <a href="admin/items.php" class="text-xs font-medium text-blue-600 hover:underline no-underline">View all →</a>
+              <a href="items.php" class="text-xs font-medium text-blue-600 hover:underline no-underline">View all →</a>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
               <?php if (empty($recent_items)): ?>
