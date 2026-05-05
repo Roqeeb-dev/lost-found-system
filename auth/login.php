@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       die("DB Error");
     }
 
-    $stmt = $conn->prepare("SELECT id, name, password FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, name, password, role FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
 
@@ -32,9 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Login success → create session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
-        $_SESSION['user_role'] = 'user';
-
-        header("Location: ../dashboard.php");
+        $_SESSION['user_role'] = $user['role'] ?? 'user';
+        
+        $redirect = ($_SESSION['user_role'] === 'admin') ? "../admin/dashboard.php" : "../dashboard.php";
+        header("Location: $redirect");
         exit();
       } else {
         $error = "Incorrect password";
@@ -99,10 +100,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           autocomplete="current-password"
           required
         />
-      </div>
-
-      <div class="flex justify-end text-sm">
-        <a href="#" class="text-blue-600 hover:underline">Forgot password?</a>
       </div>
 
       <button
