@@ -105,26 +105,26 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
     <nav class="flex-1 overflow-y-auto px-3 py-2">
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-2 pt-3 pb-1.5">Overview</p>
-      <a href="admin/dashboard.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-blue-300 bg-blue-500/20 mb-0.5 no-underline">
+      <a href="dashboard.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-blue-300 bg-blue-500/20 mb-0.5 no-underline">
         <span class="w-5 text-center font-bold">•</span> Dashboard
       </a>
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-2 pt-5 pb-1.5">Manage</p>
-      <a href="admin/claims.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
+      <a href="claims.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
         <span class="w-5 text-center font-bold">•</span> Claims
         <?php if ($stats['pending_claims'] > 0): ?>
           <span class="ml-auto text-[11px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full leading-none badge-pulse"><?= $stats['pending_claims'] ?></span>
         <?php endif; ?>
       </a>
-      <a href="admin/items.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
+      <a href="items.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
         <span class="w-5 text-center font-bold">•</span> All Items
       </a>
-      <a href="admin/users.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
+      <a href="users.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white mb-0.5 no-underline transition-colors">
         <span class="w-5 text-center font-bold">•</span> Users
       </a>
 
       <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-2 pt-5 pb-1.5">Account</p>
-      <a href="admin/settings.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white no-underline transition-colors">
+      <a href="settings.php" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-white no-underline transition-colors">
         <span class="w-5 text-center font-bold">•</span> Settings
       </a>
 
@@ -152,7 +152,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
     <header class="sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center gap-3 px-4 md:px-8 h-[60px]">
       <h1 class="font-display text-lg md:text-xl text-slate-800">Admin Dashboard</h1>
       <?php if ($stats['pending_claims'] > 0): ?>
-        <a href="admin/claims.php" class="flex items-center gap-1.5 text-xs font-semibold text-red-600 bg-red-50 px-3 py-1.5 rounded-full no-underline hover:bg-red-100 transition-colors">
+        <a href="claims.php" class="flex items-center gap-1.5 text-xs font-semibold text-red-600 bg-red-50 px-3 py-1.5 rounded-full no-underline hover:bg-red-100 transition-colors">
           <?= $stats['pending_claims'] ?> pending claim<?= $stats['pending_claims'] > 1 ? 's' : '' ?>
         </a>
       <?php endif; ?>
@@ -232,8 +232,8 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
           <div>
             <p class="text-sm font-semibold text-white mb-2">Quick Links</p>
             <div class="flex flex-col gap-1">
-              <a href="admin/items.php?status=active" class="text-xs font-semibold text-blue-400 hover:text-blue-300 no-underline transition-colors">View active items →</a>
-              <a href="admin/users.php"               class="text-xs font-semibold text-blue-400 hover:text-blue-300 no-underline transition-colors">Manage users →</a>
+              <a href="items.php?status=active" class="text-xs font-semibold text-blue-400 hover:text-blue-300 no-underline transition-colors">View active items →</a>
+              <a href="users.php"               class="text-xs font-semibold text-blue-400 hover:text-blue-300 no-underline transition-colors">Manage users →</a>
             </div>
           </div>
         </div>
@@ -247,7 +247,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
         <div>
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-sm font-semibold text-slate-800">Pending Claims</h2>
-            <a href="admin/claims.php" class="text-xs font-medium text-blue-600 hover:underline no-underline">Manage all →</a>
+            <a href="claims.php" class="text-xs font-medium text-blue-600 hover:underline no-underline">Manage all →</a>
           </div>
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
             <?php if (empty($pending_claims)): ?>
@@ -275,8 +275,8 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
                     <td class="px-2 md:px-3 py-2 md:py-3 text-xs md:text-sm text-slate-600"><?= htmlspecialchars($claim['claimant']) ?></td>
                     <td class="px-2 md:px-3 py-2 md:py-3">
                       <div class="flex items-center gap-1">
-                        <a href="admin/claims.php?action=approve&id=<?= $claim['id'] ?>" class="text-[10px] md:text-xs font-semibold px-2 md:px-2.5 py-1 rounded-md bg-green-100 text-green-700 hover:bg-green-200 no-underline transition-colors">Approve</a>
-                        <a href="admin/claims.php?action=reject&id=<?= $claim['id'] ?>"  class="text-[10px] md:text-xs font-semibold px-2 md:px-2.5 py-1 rounded-md bg-red-100 text-red-600 hover:bg-red-200 no-underline transition-colors">Reject</a>
+                        <a href="claims.php?action=approve&id=<?= $claim['id'] ?>" class="text-[10px] md:text-xs font-semibold px-2 md:px-2.5 py-1 rounded-md bg-green-100 text-green-700 hover:bg-green-200 no-underline transition-colors">Approve</a>
+                        <a href="claims.php?action=reject&id=<?= $claim['id'] ?>"  class="text-[10px] md:text-xs font-semibold px-2 md:px-2.5 py-1 rounded-md bg-red-100 text-red-600 hover:bg-red-200 no-underline transition-colors">Reject</a>
                       </div>
                     </td>
                   </tr>
@@ -316,7 +316,7 @@ $avatar_letter = strtoupper(substr($_SESSION['user_name'], 0, 1));
                   <?php foreach ($recent_items as $item): ?>
                   <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors last:border-0">
                     <td class="px-3 md:px-5 py-2 md:py-3">
-                      <a href="admin/items.php?view=<?= $item['id'] ?>" class="text-xs md:text-sm font-medium text-slate-800 hover:text-blue-600 no-underline transition-colors">
+                      <a href="items.php?view=<?= $item['id'] ?>" class="text-xs md:text-sm font-medium text-slate-800 hover:text-blue-600 no-underline transition-colors">
                         <?= htmlspecialchars($item['title']) ?>
                       </a>
                     </td>
